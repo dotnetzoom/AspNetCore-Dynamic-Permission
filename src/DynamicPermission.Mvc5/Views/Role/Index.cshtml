@@ -1,0 +1,48 @@
+﻿@using DynamicPermission.Mvc5.Controllers
+@using DynamicPermission.Mvc5.ViewModels
+@model IEnumerable<RoleViewModel>
+@{
+    ViewData["Title"] = "نقش ها";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>@ViewData["Title"]</h2>
+        <p>
+            @Html.ActionLink("افزودن نقش جدید", nameof(RoleController.Create))
+        </p>
+        <table class="table table-striped table-bordered table-hover">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    عملیات
+                </th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.ActionLink("ویرایش", nameof(RoleController.Edit), new { id = item.Id }) |
+                        @using (Html.BeginForm(nameof(RoleController.Delete), "Role", new { id = item.Id }, FormMethod.Post, new { style = "display: inline;" }))
+                        {
+                            @Html.AntiForgeryToken();
+                            <a href="#" onclick="$(this).closest('form').submit()">حذف</a>
+                        }
+                    </td>
+                </tr>
+                        }
+        </table>
+    </div>
+</div>

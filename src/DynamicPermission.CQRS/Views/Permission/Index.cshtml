@@ -1,0 +1,121 @@
+﻿@using DynamicPermission.CQRS.ViewModels
+@using DynamicPermission.CQRS.Controllers
+
+@model PermissionListViewModel
+@{
+    ViewData["Title"] = "سطوح دسترسی";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <br />
+        <div class="row">
+            <label>نقش ها : </label>
+            @Html.DropDownListFor(m => m.RoleId, Model.GetRolesSelectList(), "--- انتخاب کنید ---", new { @class = "form-control" })
+        </div>
+        <br />
+        <div class="row">
+            <ul class="nav nav-tabs">
+                @{var first = true;}
+                @foreach (var item in Model.PermissionTabs)
+                {
+                    <li class="@(first ? "active" : "")"><a data-toggle="tab" href="#@item.Name.Replace(" ", "_").Replace(".", "_")">@item.Name</a></li>
+                    first = false;
+                }
+            </ul>
+            <div class="tab-content">
+                @{
+                    var first2 = true;
+                    foreach (var item in Model.PermissionTabs)
+                    {
+                        <div id="@item.Name.Replace(" ", "_").Replace(".", "_")" class="tab-pane fade @(first2 ? "in active" : "")">
+                            <br />
+                            <div>
+                                @foreach (var controller in item.PermissionRequestGroups)
+                                {
+                                    <div class="col-md-3 card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">@controller.Name</h5>
+                                            <div>
+                                                <table class="table table-responsive table-striped table-hover">
+                                                    <tbody>
+                                                        @foreach (var action in controller.PermissionRequests)
+                                                        {
+                                                            <tr>
+                                                                <td>
+                                                                    @action.Name
+                                                                </td>
+                                                                <td style="text-align:left">
+                                                                    @Html.CheckBox($"roleCheckBox-{controller.FullName}-{action.Name}", action.Selected,
+                                                                    htmlAttributes: new { data_actions = string.Join(",", action.FullNames) })
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    first2 = false;
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(function () {
+            $("#RoleId").on('change', function () {
+                window.location.href = "/Permission/Index/" + this.value;
+            })
+            $('input[type=checkbox]').change(function () {
+                var chb = $(this);
+                if (chb.is(':checked')) {
+                    $.ajax({
+                        url: '@Url.Action(nameof(PermissionController.AddPermission))',
+                        type: "Post",
+                        dataType: "json",
+                        data: {
+                            RoleId: @(Model.RoleId ?? 0),
+                            ActionFullNames: chb.data("actions").split(",")
+                        },
+                        success: function (data) {
+                            if (data.result == true)
+                                chb.closest("tr").effect("highlight");
+                            else
+                                alert("خطا!");
+                        },
+                        error: function () {
+                            alert("خطا!");
+                        }
+                    });
+                }
+                else {
+                    $.ajax({
+                        url: '@Url.Action(nameof(PermissionController.DeletePermission))',
+                        type: "Post",
+                        dataType: "json",
+                        data: {
+                            RoleId: @(Model.RoleId ?? 0),
+                            ActionFullNames: chb.data("actions").split(",")
+                        },
+                        success: function (data) {
+                            if (data.result == true)
+                                chb.closest("tr").effect("highlight");
+                            else
+                                alert("خطا!");
+                        },
+                        error: function () {
+                            alert("خطا!");
+                        }
+                    });
+                }
+            });
+        })
+    </script>
+}
