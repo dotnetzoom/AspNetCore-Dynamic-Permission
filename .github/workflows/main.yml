@@ -28,14 +28,8 @@ jobs:
         with:
             dotnet-version: '5.0.201'
 
-      - name: Restore Packages (.NET Core)
-        run: dotnet restore src\DynamicPermission.AspNetCore\DynamicPermission.AspNetCore.csproj
-
       - name: NuGet Restore (.NET Framework)
-        run: nuget restore src\DynamicPermission.Mvc5\DynamicPermission.Mvc5.csproj
+        run: nuget restore DynamicPermission.sln
 
-      - name: Build (.NET Core)
-        run: dotnet build src\DynamicPermission.AspNetCore\DynamicPermission.AspNetCore.csproj --configuration Release --no-restore
-
-      - name: MSBuild (.NET Framework)
-        run: msbuild src\DynamicPermission.Mvc5\DynamicPermission.Mvc5.csproj /p:Configuration=Release
+      - name: Build (.NET Framework)
+        run: msbuild DynamicPermission.sln /p:Configuration=Release
